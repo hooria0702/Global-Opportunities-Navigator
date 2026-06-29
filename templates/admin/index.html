@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — OppsNavigator{% endblock %}
+{% block extra_head %}
+<style>
+.admin-table { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.admin-row { display:grid; grid-template-columns: 2.2fr 1fr 1fr 1fr 1.2fr; gap:10px; align-items:center; padding:.8rem 1.25rem; border-bottom:1px solid var(--border); font-size:.85rem; }
+.admin-row:last-child { border-bottom:none; }
+.admin-row.header { background:var(--ground); font-weight:700; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); }
+.admin-name { font-weight:600; }
+.admin-stat-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.85rem 1rem; text-align:center; }
+.admin-stat-card .n { font-family:'Poppins',sans-serif; font-weight:800; font-size:1.4rem; color:var(--navy); }
+.admin-stat-card .l { font-size:.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; }
+@media (max-width:768px) { .admin-row { grid-template-columns: 1fr; gap:4px; } .admin-row.header { display:none; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div>
+        <h1><i class="bi bi-speedometer2 me-2"></i>Admin Panel</h1>
+        <p>Manage opportunities without touching Python files.</p>
+      </div>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-sm" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3);">
+        <i class="bi bi-box-arrow-right me-1"></i>Log Out
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container pb-5">
+
+  <!-- Stats -->
+  <div class="row g-2 mb-4">
+    <div class="col-6 col-md-2">
+      <div class="admin-stat-card"><div class="n">{{ total }}</div><div class="l">Total</div></div>
+    </div>
+    {% for t, n in stats.items() %}
+    {% if n > 0 %}
+    <div class="col-6 col-md-2">
+      <div class="admin-stat-card"><div class="n">{{ n }}</div><div class="l">{{ t }}</div></div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">All Opportunities</h5>
+    <a href="{{ url_for('admin_add') }}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Add Opportunity
+    </a>
+  </div>
+
+  <div class="admin-table">
+    <div class="admin-row header">
+      <div>Name</div><div>Type</div><div>Country</div><div>Deadline</div><div>Actions</div>
+    </div>
+    {% for opp in opportunities %}
+    <div class="admin-row">
+      <div class="admin-name">{{ opp.name }}</div>
+      <div><span class="badge-type badge-{{ opp.type|lower|replace(' ','-') }}">{{ opp.type }}</span></div>
+      <div style="color:var(--text-muted);">{{ opp.country }}</div>
+      <div style="color:var(--text-muted);">{{ opp.deadline or 'Rolling' }}</div>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('admin_edit', opp_id=opp.id) }}" class="btn btn-sm btn-outline-primary" style="padding:2px 10px;">Edit</a>
+        <form method="POST" action="{{ url_for('admin_delete', opp_id=opp.id) }}" onsubmit="return confirm('Delete {{ opp.name }}? This cannot be undone.');" class="d-inline">
+          <button type="submit" class="btn btn-sm" style="padding:2px 10px;background:var(--red-light);color:#991B1B;border:1px solid #FCA5A5;">Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Submitted suggestions -->
+  {% if submissions %}
+  <div class="d-flex justify-content-between align-items-center mt-5 mb-3">
+    <h5 class="fw-bold mb-0">User Submissions ({{ submissions|length }})</h5>
+  </div>
+  <div class="admin-table">
+    <div class="admin-row header" style="grid-template-columns:2fr 1fr 1fr 1.5fr;">
+      <div>Programme Name</div><div>Type</div><div>Country</div><div>Submitted</div>
+    </div>
+    {% for s in submissions %}
+    <div class="admin-row" style="grid-template-columns:2fr 1fr 1fr 1.5fr;">
+      <div>
+        <div class="admin-name">{{ s.name }}</div>
+        {% if s.link %}<a href="{{ s.link }}" target="_blank" style="font-size:.78rem;color:var(--amber);">{{ s.link[:50] }}{% if s.link|length > 50 %}…{% endif %}</a>{% endif %}
+        {% if s.description %}<div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">{{ s.description[:120] }}{% if s.description|length > 120 %}…{% endif %}</div>{% endif %}
+      </div>
+      <div style="color:var(--text-muted);">{{ s.type or '—' }}</div>
+      <div style="color:var(--text-muted);">{{ s.country or '—' }}</div>
+      <div style="color:var(--text-muted);font-size:.8rem;">
+        {{ s.submitted_at[:10] if s.submitted_at else '—' }}
+        {% if s.submitter %}<div>by {{ s.submitter }}</div>{% endif %}
+        <a href="{{ url_for('admin_add') }}?prefill={{ s.name | urlencode }}" class="btn btn-sm btn-outline-primary mt-1" style="font-size:.75rem;padding:2px 8px;">Add to DB</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

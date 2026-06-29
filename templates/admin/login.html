@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Admin Login — OppsNavigator{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+      <div class="card p-4">
+        <div class="text-center mb-3">
+          <i class="bi bi-shield-lock" style="font-size:2rem;color:var(--navy);"></i>
+          <h4 class="fw-bold mt-2 mb-0">Admin Login</h4>
+          <p style="font-size:.85rem;color:var(--text-muted);">Manage opportunities without editing code</p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_login') }}">
+          <div class="mb-3">
+            <label class="form-label" style="font-size:.85rem;font-weight:600;">Username</label>
+            <input type="text" name="username" class="form-control" required autofocus />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-size:.85rem;font-weight:600;">Password</label>
+            <input type="password" name="password" class="form-control" required />
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Log In</button>
+          </div>
+        </form>
+        <p style="font-size:.76rem;color:var(--text-muted);text-align:center;margin-top:1rem;margin-bottom:0;">
+          Default: admin / admin123 — change in database.py
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
