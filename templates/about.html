@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}About — OppsNavigator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-info-circle me-2"></i>About OppsNavigator</h1>
+    <p>Why this was built and how it works.</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="card p-4 mb-4">
+        <h4 class="fw-bold mb-3">The Problem</h4>
+        <p style="font-size:0.92rem; color:var(--text-muted); line-height:1.75;">
+          Pakistani students face a real challenge when searching for international
+          scholarships and exchange programmes. Information is scattered across dozens of
+          websites, eligibility criteria are buried in PDFs, and deadlines are easy to miss.
+          Many students apply to programmes they don't qualify for — or worse, never apply
+          to ones they do qualify for because they didn't know they existed.
+        </p>
+      </div>
+
+      <div class="card p-4 mb-4">
+        <h4 class="fw-bold mb-3">What This Does</h4>
+        <p style="font-size:0.92rem; color:var(--text-muted); line-height:1.75; margin-bottom:1rem;">
+          OppsNavigator centralises opportunities and runs a transparent eligibility check
+          against your academic profile. Enter your CGPA, degree level, and language scores
+          — the system checks every programme's requirements and tells you exactly where
+          you stand.
+        </p>
+        <ul style="font-size:0.9rem; color:var(--text-muted); line-height:1.9; padding-left:1.2rem;">
+          <li>Checks 8 criteria per programme — GPA, degree level, IELTS, TOEFL, field, country, funding, deadline</li>
+          <li>Shows a 0–100 match score with a breakdown of each factor</li>
+          <li>Flags exactly what's missing and why</li>
+          <li>Tracks upcoming deadlines for programmes you're eligible for</li>
+          <li>Lets you save a shortlist for later</li>
+        </ul>
+      </div>
+
+      <div class="card p-4 mb-4">
+        <h4 class="fw-bold mb-3">How the Eligibility Check Works</h4>
+        <p style="font-size:0.92rem; color:var(--text-muted); line-height:1.75; margin-bottom:0.75rem;">
+          No machine learning. The logic is fully rule-based and explainable:
+        </p>
+        <div class="row g-2" style="font-size:0.85rem;">
+          <div class="col-sm-6">
+            <div style="background:var(--ground); border-radius:var(--radius-sm); padding:0.75rem 1rem;">
+              <strong>Hard failures → Not Eligible</strong><br>
+              <span style="color:var(--text-muted);">Wrong degree level, missing required IELTS/TOEFL, GPA more than 0.2 below minimum, deadline passed.</span>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div style="background:var(--ground); border-radius:var(--radius-sm); padding:0.75rem 1rem;">
+              <strong>Soft gaps → Potentially Eligible</strong><br>
+              <span style="color:var(--text-muted);">Field mismatch, country not in preferred list, funding type mismatch, GPA within 0.2 of minimum.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 mb-4">
+        <h4 class="fw-bold mb-3">Tech Stack</h4>
+        <div class="d-flex flex-wrap gap-2" style="font-size:0.85rem;">
+          {% for tech in ['Python', 'Flask', 'SQLite', 'Bootstrap 5', 'Jinja2', 'Pandas'] %}
+          <span style="background:var(--navy); color:#fff; border-radius:6px; padding:4px 12px; font-family:'Poppins',sans-serif; font-weight:600;">{{ tech }}</span>
+          {% endfor %}
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:1rem; margin-bottom:0;">
+          Built as a portfolio project by a CS undergraduate. Server-rendered with Flask
+          and Jinja templates, no JavaScript framework, single SQLite database file.
+          Designed to be readable and explainable in an interview.
+        </p>
+      </div>
+
+      <div class="card p-4">
+        <h4 class="fw-bold mb-3">Opportunity Sources</h4>
+        <p style="font-size:0.92rem; color:var(--text-muted); line-height:1.75; margin-bottom:0.75rem;">
+          All data is sourced from official programme websites. Always verify requirements
+          directly before applying — deadlines and eligibility criteria change each cycle.
+        </p>
+        <div style="font-size:0.85rem; color:var(--text-muted);">
+          <a href="https://stipendiumhungaricum.hu" target="_blank" rel="noopener" class="d-block py-1 border-bottom" style="border-color:var(--border)!important;">Stipendium Hungaricum ↗</a>
+          <a href="https://www.csc.edu.cn/studyinchina" target="_blank" rel="noopener" class="d-block py-1 border-bottom" style="border-color:var(--border)!important;">CSC Scholarship ↗</a>
+          <a href="https://www.turkiyeburslari.gov.tr" target="_blank" rel="noopener" class="d-block py-1 border-bottom" style="border-color:var(--border)!important;">Türkiye Bursları ↗</a>
+          <a href="https://www.daad.de/en" target="_blank" rel="noopener" class="d-block py-1 border-bottom" style="border-color:var(--border)!important;">DAAD ↗</a>
+          <a href="https://erasmus-plus.ec.europa.eu" target="_blank" rel="noopener" class="d-block py-1 border-bottom" style="border-color:var(--border)!important;">Erasmus+ ↗</a>
+          <a href="https://www.mext.go.jp/en" target="_blank" rel="noopener" class="d-block py-1">MEXT ↗</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
