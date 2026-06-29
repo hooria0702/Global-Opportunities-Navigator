@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Browse Opportunities — OppsNavigator{% endblock %}
+{% block extra_head %}
+<style>
+.filter-bar { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem 1.5rem; margin-bottom:1.5rem; }
+.filter-label { font-size:.78rem; font-weight:600; color:var(--text-main); margin-bottom:3px; display:block; }
+.opp-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem 1.5rem; height:100%; display:flex; flex-direction:column; transition:box-shadow .18s,transform .18s; }
+.opp-card:hover { box-shadow:0 6px 20px rgba(0,0,0,.09); transform:translateY(-2px); }
+.opp-card .card-name { font-family:'Poppins',sans-serif; font-weight:700; font-size:.96rem; margin:6px 0 8px; }
+.opp-card .card-desc { font-size:.82rem; color:var(--text-muted); line-height:1.55; flex-grow:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.card-foot { display:flex; align-items:center; justify-content:space-between; margin-top:1rem; padding-top:.75rem; border-top:1px solid var(--border); }
+.type-icon { font-size:.85rem; margin-right:3px; }
+.active-filter { background:var(--amber-light); border:1px solid var(--amber); border-radius:20px; padding:2px 10px; font-size:.75rem; font-weight:600; color:#92400E; display:inline-flex; align-items:center; gap:5px; }
+.active-filter a { color:#92400E; text-decoration:none; font-weight:700; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-search me-2"></i>Browse Opportunities</h1>
+    <p>{{ result_count }} programme{{ 's' if result_count != 1 }} across scholarships, internships, exchanges, and more.</p>
+  </div>
+</div>
+<div class="container pb-5">
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <form method="GET" action="{{ url_for('search') }}">
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+          <span class="filter-label">Search</span>
+          <input type="text" name="q" class="form-control form-control-sm" placeholder="Type programme name, country, field…" value="{{ filters.q }}" />
+        </div>
+        <div class="col-6 col-md-2">
+          <span class="filter-label">Type</span>
+          <select name="opp_type" class="form-select form-select-sm">
+            <option value="">All types</option>
+            {% for t in opp_types %}<option value="{{ t }}" {% if filters.opp_type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <span class="filter-label">Region</span>
+          <select name="region" class="form-select form-select-sm">
+            <option value="">All regions</option>
+            {% for r in regions %}<option value="{{ r }}" {% if filters.region == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <span class="filter-label">Country</span>
+          <input list="country-list" name="country" class="form-control form-control-sm"
+                 placeholder="Type to search…" value="{{ filters.country }}" autocomplete="off" />
+          <datalist id="country-list">
+            {% for c in countries %}<option value="{{ c }}">{% endfor %}
+          </datalist>
+        </div>
+        <div class="col-6 col-md-2">
+          <span class="filter-label">Funding</span>
+          <select name="funding_type" class="form-select form-select-sm">
+            <option value="">Any</option>
+            <option value="Fully Funded" {% if filters.funding_type == 'Fully Funded' %}selected{% endif %}>Fully Funded</option>
+            <option value="Partially Funded" {% if filters.funding_type == 'Partially Funded' %}selected{% endif %}>Partial</option>
+            <option value="Varies" {% if filters.funding_type == 'Varies' %}selected{% endif %}>Varies</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-1">
+          <span class="filter-label">Level</span>
+          <select name="degree_level" class="form-select form-select-sm">
+            <option value="">Any</option>
+            <option value="Bachelors" {% if filters.degree_level == 'Bachelors' %}selected{% endif %}>BSc</option>
+            <option value="Masters" {% if filters.degree_level == 'Masters' %}selected{% endif %}>MSc</option>
+            <option value="PhD" {% if filters.degree_level == 'PhD' %}selected{% endif %}>PhD</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-1">
+          <span class="filter-label">Month</span>
+          <select name="deadline_month" class="form-select form-select-sm">
+            <option value="">Any</option>
+            {% for m in [('01','Jan'),('02','Feb'),('03','Mar'),('04','Apr'),('05','May'),('06','Jun'),('07','Jul'),('08','Aug'),('09','Sep'),('10','Oct'),('11','Nov'),('12','Dec')] %}
+            <option value="{{ m[0] }}" {% if filters.deadline_month == m[0] %}selected{% endif %}>{{ m[1] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Apply</button>
+          <a href="{{ url_for('search') }}" class="btn btn-sm" style="border:1px solid var(--border);color:var(--text-muted);">Clear</a>
+        </div>
+      </div>
+    </form>
+    <!-- Active filter pills -->
+    {% set active = [] %}
+    {% if filters.opp_type %}{% set _ = active.append(('Type', filters.opp_type)) %}{% endif %}
+    {% if filters.region %}{% set _ = active.append(('Region', filters.region)) %}{% endif %}
+    {% if filters.country %}{% set _ = active.append(('Country', filters.country)) %}{% endif %}
+    {% if filters.funding_type %}{% set _ = active.append(('Funding', filters.funding_type)) %}{% endif %}
+    {% if filters.degree_level %}{% set _ = active.append(('Level', filters.degree_level)) %}{% endif %}
+    {% if filters.deadline_month %}{% set _ = active.append(('Month', filters.deadline_month)) %}{% endif %}
+    {% if active %}
+    <div class="mt-2 d-flex gap-2 flex-wrap align-items-center">
+      {% for label, val in active %}
+      <span class="active-filter">{{ label }}: {{ val }}</span>
+      {% endfor %}
+      <a href="{{ url_for('search') }}" style="font-size:.78rem;color:var(--text-muted);text-decoration:underline;">Clear all</a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if not session.student_id %}
+  <div style="background:var(--amber-light);border:1px solid var(--amber);border-radius:var(--radius-sm);padding:.75rem 1rem;font-size:.875rem;margin-bottom:1.25rem;">
+    <i class="bi bi-lightning me-1" style="color:var(--amber);"></i>
+    <strong>Tip:</strong> <a href="{{ url_for('profile') }}">Set up your profile</a> to see your eligibility and match score for every programme.
+  </div>
+  {% endif %}
+
+  {% if results %}
+  <div class="row g-3">
+    {% for item in results %}{% set opp=item.opp %}{% set d=item.days_left %}
+    <div class="col-md-6 col-xl-4">
+      <div class="opp-card">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge-type badge-{{ opp.type|lower|replace(' ','-') }}">{{ opp.type }}</span>
+          <span style="font-size:.75rem;color:var(--text-muted);"><i class="bi bi-geo-alt"></i> {{ opp.country }}</span>
+        </div>
+        <div class="card-name">{{ opp.name }}</div>
+        <div class="d-flex gap-2 flex-wrap mb-2">
+          {% if 'Fully' in opp.funding_type %}<span class="badge-type badge-funded">Fully Funded</span>
+          {% elif 'Partial' in opp.funding_type %}<span class="badge-type badge-partial">Partial</span>
+          {% else %}<span class="badge-type badge-varies">{{ opp.funding_type }}</span>{% endif %}
+          <span style="font-size:.73rem;color:var(--text-muted);">{{ opp.degree_levels.replace(',', ' · ') }}</span>
+        </div>
+        <p class="card-desc">{{ opp.description }}</p>
+        <div class="card-foot">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            {% set status = opp.application_status if opp.application_status else 'Open' %}
+            {% if status == 'Closed' or (d is not none and d < 0) %}
+              <span class="badge-type badge-deadline-closed">Closed</span>
+            {% elif status == 'Opening Soon' %}
+              <span class="badge-type badge-deadline-soon"><i class="bi bi-clock me-1"></i>Opening Soon</span>
+            {% elif d is none %}<span class="badge-type badge-deadline-rolling"><i class="bi bi-arrow-repeat me-1"></i>Rolling</span>
+            {% elif d <= 14 %}<span class="badge-type badge-deadline-urgent"><i class="bi bi-exclamation-triangle me-1"></i>{{ d }}d left</span>
+            {% elif d <= 45 %}<span class="badge-type badge-deadline-soon"><i class="bi bi-clock me-1"></i>{{ d }}d left</span>
+            {% else %}<span class="badge-type badge-deadline-open"><i class="bi bi-calendar me-1"></i>{{ opp.deadline }}</span>{% endif %}
+            {% if opp.opening_date and status == 'Opening Soon' %}
+              <span style="font-size:.72rem;color:var(--text-muted);">from {{ opp.opening_date }}</span>
+            {% endif %}
+          </div>
+          <a href="{{ url_for('opportunity_detail', opp_id=opp.id) }}" class="btn btn-sm btn-outline-primary">Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:3rem 1rem;color:var(--text-muted);">
+    <i class="bi bi-inbox" style="font-size:2.5rem;opacity:.3;"></i>
+    <p class="mt-3 fw-bold">No results match your filters</p>
+    <a href="{{ url_for('search') }}" class="btn btn-outline-primary btn-sm">Clear filters</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

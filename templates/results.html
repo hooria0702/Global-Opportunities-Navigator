@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Your Results — OppsNavigator{% endblock %}
+{% block extra_head %}
+<style>
+.results-summary { background:var(--navy); padding:2rem 0; color:#fff; }
+.summary-stat { text-align:center; padding:.75rem 1.25rem; border-radius:var(--radius-sm); }
+.summary-stat .num { font-family:'Poppins',sans-serif; font-size:2rem; font-weight:800; line-height:1; }
+.summary-stat .lbl { font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; margin-top:3px; opacity:.7; }
+.stat-eligible { background:rgba(34,197,94,.15); }
+.stat-potentially { background:rgba(245,158,11,.15); }
+.stat-not { background:rgba(239,68,68,.12); }
+.opp-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem 1.5rem; margin-bottom:.85rem; }
+.opp-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08); }
+.opp-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:.6rem; }
+.opp-name { font-family:'Poppins',sans-serif; font-weight:700; font-size:1rem; margin-bottom:3px; }
+.opp-meta { font-size:.8rem; color:var(--text-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.missing-list { margin-top:.6rem; }
+.missing-item { display:flex; align-items:center; gap:8px; font-size:.83rem; padding:3px 0; }
+.missing-check { color:var(--green); font-weight:700; }
+.missing-x { color:var(--red); font-weight:700; }
+.missing-tilde { color:var(--yellow); font-weight:700; }
+.section-divider { display:flex; align-items:center; gap:12px; margin:2rem 0 1rem; }
+.section-divider .label { font-family:'Poppins',sans-serif; font-weight:700; font-size:.88rem; white-space:nowrap; }
+.section-divider .line { flex:1; height:1px; background:var(--border); }
+.status-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.mini-score { display:flex; align-items:center; gap:6px; font-size:.78rem; color:var(--text-muted); }
+.mini-score .val { font-family:'Poppins',sans-serif; font-weight:700; color:var(--navy); }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="results-summary">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-5 mb-3 mb-md-0">
+        <p style="color:rgba(255,255,255,.55);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Results for</p>
+        <h1 style="font-size:1.6rem;font-weight:800;margin:0;color:#fff;">{{ student.name }}</h1>
+        <p style="color:rgba(255,255,255,.6);font-size:.88rem;margin-top:4px;">
+          {{ student.degree_level }} · {{ student.major }} · CGPA {{ student.cgpa }}
+          {% if student.has_ielts %} · IELTS {{ student.ielts_score }}{% endif %}
+        </p>
+      </div>
+      <div class="col-md-7">
+        <div class="d-flex gap-3 flex-wrap">
+          <div class="summary-stat stat-eligible"><div class="num" style="color:#22C55E;">{{ eligible_count }}</div><div class="lbl">Eligible</div></div>
+          <div class="summary-stat stat-potentially"><div class="num" style="color:#F59E0B;">{{ potential_count }}</div><div class="lbl">Potentially</div></div>
+          <div class="summary-stat stat-not"><div class="num" style="color:#EF4444;">{{ not_count }}</div><div class="lbl">Not Eligible</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4 pb-5">
+
+  {% macro missing_block(res) %}
+  <div class="missing-list">
+    {% for req in res.requirements %}
+    <div class="missing-item">
+      {% if req.met == true %}<span class="missing-check">✓</span>
+      {% elif req.met == 'partial' %}<span class="missing-tilde">~</span>
+      {% else %}<span class="missing-x">✗</span>{% endif %}
+      <span style="{% if req.met == false %}color:#991B1B;font-weight:600;{% elif req.met == 'partial' %}color:#92400E;{% endif %}">{{ req.label }}{% if req.met != true %} — {{ req.note }}{% endif %}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endmacro %}
+
+  {% if buckets.eligible %}
+  <div class="section-divider">
+    <div class="status-dot" style="background:var(--green);"></div>
+    <span class="label" style="color:var(--green);">Eligible ({{ eligible_count }})</span>
+    <div class="line"></div>
+    <span style="font-size:.78rem;color:var(--text-muted);">You meet all requirements</span>
+  </div>
+  {% for item in buckets.eligible %}{% set opp=item.opportunity %}{% set res=item.result %}{% set sc=item.score_result %}
+  <div class="opp-card card-eligible">
+    <div class="opp-card-header">
+      <div class="flex-grow-1">
+        <div class="opp-name">{{ opp.name }}</div>
+        <div class="opp-meta">
+          <i class="bi bi-geo-alt"></i>{{ opp.country }}
+          <span class="badge-type badge-{{ opp.type|lower|replace(' ','-') }}">{{ opp.type }}</span>
+          {% if opp.deadline and opp.deadline != 'Rolling' %}<span class="badge-type badge-deadline-open">{{ opp.deadline }}</span>
+          {% else %}<span class="badge-type badge-deadline-rolling">Rolling</span>{% endif %}
+        </div>
+      </div>
+      <div class="mini-score"><span class="val">{{ sc.score }}</span>/100</div>
+    </div>
+    {{ missing_block(res) }}
+    <div class="mt-2 d-flex gap-2 flex-wrap">
+      <a href="{{ url_for('opportunity_detail', opp_id=opp.id) }}" class="btn btn-sm btn-outline-primary">View Roadmap</a>
+      <form method="POST" action="{{ url_for('save_opportunity', opp_id=opp.id) }}" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-navy"><i class="bi bi-bookmark me-1"></i>Save</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if buckets.potentially %}
+  <div class="section-divider">
+    <div class="status-dot" style="background:var(--yellow);"></div>
+    <span class="label" style="color:var(--yellow);">Potentially Eligible ({{ potential_count }})</span>
+    <div class="line"></div>
+    <span style="font-size:.78rem;color:var(--text-muted);">Minor gaps — still worth applying</span>
+  </div>
+  {% for item in buckets.potentially %}{% set opp=item.opportunity %}{% set res=item.result %}{% set sc=item.score_result %}
+  <div class="opp-card card-potentially">
+    <div class="opp-card-header">
+      <div class="flex-grow-1">
+        <div class="opp-name">{{ opp.name }}</div>
+        <div class="opp-meta">
+          <i class="bi bi-geo-alt"></i>{{ opp.country }}
+          <span class="badge-type badge-{{ opp.type|lower|replace(' ','-') }}">{{ opp.type }}</span>
+        </div>
+      </div>
+      <div class="mini-score"><span class="val">{{ sc.score }}</span>/100</div>
+    </div>
+    {{ missing_block(res) }}
+    <div class="mt-2 d-flex gap-2 flex-wrap">
+      <a href="{{ url_for('opportunity_detail', opp_id=opp.id) }}" class="btn btn-sm btn-outline-primary">View Roadmap</a>
+      <form method="POST" action="{{ url_for('save_opportunity', opp_id=opp.id) }}" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-navy"><i class="bi bi-bookmark me-1"></i>Save</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if buckets.not_eligible %}
+  <div class="section-divider">
+    <div class="status-dot" style="background:var(--red);"></div>
+    <span class="label" style="color:var(--red);">Not Currently Eligible ({{ not_count }})</span>
+    <div class="line"></div>
+    <span style="font-size:.78rem;color:var(--text-muted);">See what's missing and how to qualify</span>
+  </div>
+  {% for item in buckets.not_eligible %}{% set opp=item.opportunity %}{% set res=item.result %}{% set sc=item.score_result %}
+  <div class="opp-card card-not" style="opacity:.9;">
+    <div class="opp-card-header">
+      <div class="flex-grow-1">
+        <div class="opp-name">{{ opp.name }}</div>
+        <div class="opp-meta">
+          <i class="bi bi-geo-alt"></i>{{ opp.country }}
+          <span class="badge-type badge-{{ opp.type|lower|replace(' ','-') }}">{{ opp.type }}</span>
+        </div>
+      </div>
+      <div class="mini-score"><span class="val">{{ sc.score }}</span>/100</div>
+    </div>
+    <div class="missing-list">
+      {% for req in res.requirements if req.met == false %}
+      <div class="missing-item"><span class="missing-x">✗</span><span style="color:#991B1B;font-weight:600;">{{ req.label }} — {{ req.note }}</span></div>
+      {% endfor %}
+      {% for req in res.requirements if req.met == 'partial' %}
+      <div class="missing-item"><span class="missing-tilde">~</span><span style="color:#92400E;">{{ req.label }} — {{ req.note }}</span></div>
+      {% endfor %}
+    </div>
+    <div class="mt-2">
+      <a href="{{ url_for('opportunity_detail', opp_id=opp.id) }}" class="btn btn-sm" style="font-size:.8rem;color:var(--text-muted);border:1px solid var(--border);">
+        <i class="bi bi-signpost-2 me-1"></i>See roadmap to qualify
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="mt-4 d-flex gap-3 flex-wrap">
+    <a href="{{ url_for('profile') }}" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Update Profile</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary"><i class="bi bi-speedometer2 me-1"></i>Go to Dashboard</a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}{{ opp.name }} — OppsNavigator{% endblock %}
+{% block extra_head %}
+<style>
+.req-row { display:flex; align-items:flex-start; gap:10px; padding:.65rem 0; border-bottom:1px solid var(--border); }
+.req-row:last-child { border-bottom:none; }
+.req-icon { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0; margin-top:1px; }
+.req-met { background:var(--green-light); color:#166534; }
+.req-partial { background:var(--yellow-light); color:#92400E; }
+.req-fail { background:var(--red-light); color:#991B1B; }
+.roadmap-step { display:flex; gap:12px; align-items:flex-start; padding:.6rem 0; }
+.roadmap-num { width:26px; height:26px; border-radius:50%; background:var(--navy); color:#fff; font-family:'Poppins',sans-serif; font-weight:700; font-size:.78rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.roadmap-num.gap-step { background:var(--amber); }
+.missing-panel { background:var(--ground); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; }
+.missing-row { display:flex; align-items:center; gap:10px; padding:.5rem 0; border-bottom:1px solid var(--border); font-size:.875rem; }
+.missing-row:last-child { border-bottom:none; }
+.missing-icon { font-size:1rem; flex-shrink:0; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <a href="{{ url_for('search') }}" style="color:rgba(255,255,255,.5);font-size:.82rem;"><i class="bi bi-arrow-left me-1"></i>Back to Browse</a>
+    <div class="d-flex align-items-start gap-3 mt-2 flex-wrap">
+      <div class="flex-grow-1">
+        <div class="d-flex gap-2 flex-wrap mb-2">
+          <span class="badge-type badge-{{ opp.type|lower|replace(' ','-') }}">{{ opp.type }}</span>
+          {% if 'Fully' in opp.funding_type %}<span class="badge-type badge-funded">Fully Funded</span>{% endif %}
+        </div>
+        <h1>{{ opp.name }}</h1>
+        <p><i class="bi bi-geo-alt me-1"></i>{{ opp.country }} &nbsp;·&nbsp; {{ opp.region }} &nbsp;·&nbsp; {{ opp.degree_levels.replace(',', ' / ') }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row g-4">
+    <div class="col-lg-8">
+
+      <!-- Description -->
+      <div class="card p-4 mb-3">
+        <h5 class="fw-bold mb-3">About this Programme</h5>
+        <p style="font-size:.92rem;line-height:1.75;color:var(--text-muted);">{{ opp.description }}</p>
+        {% if opp.official_link %}
+        <a href="{{ opp.official_link }}" target="_blank" rel="noopener" class="btn btn-primary mt-2">
+          <i class="bi bi-box-arrow-up-right me-2"></i>Official Website
+        </a>{% endif %}
+      </div>
+
+      <!-- Requirements at a glance -->
+      <div class="card p-4 mb-3">
+        <h5 class="fw-bold mb-3">Requirements at a Glance</h5>
+        <div class="row g-3">
+          <div class="col-6 col-md-3">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);">Min GPA</div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.4rem;color:var(--navy);">{{ opp.min_gpa if opp.min_gpa > 0 else 'None' }}</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);">IELTS</div>
+            <div style="font-weight:600;color:var(--navy);">{% if opp.ielts_required %}{{ opp.min_ielts }}+{% else %}Not required{% endif %}</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);">Fields</div>
+            <div style="font-weight:600;color:var(--navy);font-size:.85rem;">{{ opp.fields }}</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);">Levels</div>
+            <div style="font-weight:600;color:var(--navy);font-size:.85rem;">{{ opp.degree_levels.replace(',', ', ') }}</div>
+          </div>
+        </div>
+      </div>
+
+      {% if elig_result %}
+      <!-- Missing requirements panel -->
+      <div class="card p-4 mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-0">Your Requirements Check</h5>
+          {% if elig_result.status == 'eligible' %}
+            <span style="background:var(--green-light);color:#166534;font-size:.8rem;padding:4px 12px;border-radius:20px;font-weight:700;">✓ Eligible</span>
+          {% elif elig_result.status == 'potentially' %}
+            <span style="background:var(--yellow-light);color:#92400E;font-size:.8rem;padding:4px 12px;border-radius:20px;font-weight:700;">~ Potentially</span>
+          {% else %}
+            <span style="background:var(--red-light);color:#991B1B;font-size:.8rem;padding:4px 12px;border-radius:20px;font-weight:700;">✗ Not Eligible</span>
+          {% endif %}
+        </div>
+
+        <!-- Met count bar -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-between" style="font-size:.78rem;margin-bottom:4px;">
+            <span style="font-weight:600;">{{ elig_result.met_count }} / {{ elig_result.total_count }} requirements met</span>
+            <span style="color:var(--text-muted);">{{ ((elig_result.met_count / elig_result.total_count) * 100)|int }}%</span>
+          </div>
+          <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
+            <div style="height:100%;border-radius:4px;background:{% if elig_result.status=='eligible' %}var(--green){% elif elig_result.status=='potentially' %}var(--yellow){% else %}var(--red){% endif %};width:{{ ((elig_result.met_count / elig_result.total_count) * 100)|int }}%;transition:width .6s ease;"></div>
+          </div>
+        </div>
+
+        <!-- Requirement rows -->
+        {% for req in elig_result.requirements %}
+        <div class="req-row">
+          <span class="req-icon {% if req.met == true %}req-met{% elif req.met == 'partial' %}req-partial{% else %}req-fail{% endif %}">
+            {% if req.met == true %}✓{% elif req.met == 'partial' %}~{% else %}✗{% endif %}
+          </span>
+          <div class="flex-grow-1">
+            <div style="font-weight:600;font-size:.875rem;">{{ req.label }}</div>
+            <div style="font-size:.8rem;color:var(--text-muted);">{{ req.note }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Roadmap -->
+      {% if roadmap_steps %}
+      <div class="card p-4 mb-3">
+        <h5 class="fw-bold mb-1">Your Application Roadmap</h5>
+        <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;">Personalised steps to qualify and apply for this programme.</p>
+        {% set gap_count = namespace(n=0) %}
+        {% for req in elig_result.requirements %}{% if req.met != true %}{% set gap_count.n = gap_count.n + 1 %}{% endif %}{% endfor %}
+        {% if gap_count.n > 0 %}
+        <div style="background:var(--amber-light);border-radius:var(--radius-sm);padding:.75rem 1rem;margin-bottom:1rem;font-size:.83rem;color:#78350F;">
+          <i class="bi bi-exclamation-triangle me-2"></i><strong>Action needed:</strong> {{ gap_count.n }} requirement(s) to address before applying.
+        </div>{% endif %}
+        {% for step in roadmap_steps %}
+        <div class="roadmap-step">
+          <div class="roadmap-num {% if loop.index <= gap_count.n %}gap-step{% endif %}">{{ loop.index }}</div>
+          <div style="font-size:.875rem;line-height:1.5;padding-top:3px;">{{ step }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endif %}
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+
+      <!-- Deadline -->
+      <div class="card p-3 mb-3">
+        <!-- Application Status -->
+        {% set status = opp.application_status if opp.application_status else 'Open' %}
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);">Status</div>
+          {% if status == 'Open' %}
+            <span style="background:var(--green-light);color:#166534;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;">● Open</span>
+          {% elif status == 'Closed' %}
+            <span style="background:var(--red-light);color:#991B1B;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;">● Closed</span>
+          {% elif status == 'Opening Soon' %}
+            <span style="background:var(--yellow-light);color:#92400E;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;">● Opening Soon</span>
+          {% else %}
+            <span style="background:var(--ground);color:var(--text-muted);font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;">● {{ status }}</span>
+          {% endif %}
+        </div>
+        {% if opp.opening_date %}
+        <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px;">
+          <i class="bi bi-calendar-plus me-1"></i>Opens: <strong>{{ opp.opening_date }}</strong>
+        </div>
+        {% endif %}
+        {% if not opp.deadline or opp.deadline == 'Rolling' %}
+          <div style="font-size:.8rem;color:var(--text-muted);">No fixed deadline — apply when open.</div>
+        {% elif days_left is not none and days_left < 0 %}
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;color:var(--text-muted);">Cycle Closed</div>
+          <p style="font-size:.78rem;color:var(--text-muted);margin:2px 0 0;">Deadline was {{ opp.deadline }}. Bookmark for next year.</p>
+        {% elif days_left is not none and days_left <= 14 %}
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;color:var(--red);">{{ days_left }} days left</div>
+          <p style="font-size:.78rem;color:var(--red);margin:2px 0 0;">Apply immediately — deadline {{ opp.deadline }}.</p>
+        {% elif days_left is not none %}
+          <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1rem;color:var(--green);">{{ days_left }} days left</div>
+          <p style="font-size:.78rem;color:var(--text-muted);margin:2px 0 0;">Deadline: {{ opp.deadline }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Score -->
+      {% if score_result %}
+      <div class="card p-3 mb-3">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;">Match Score</div>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="score-ring score-{{ score_result.grade|lower }}" data-score="{{ score_result.score }}" data-grade="{{ score_result.grade|lower }}" style="width:64px;height:64px;font-size:1.1rem;">
+            <span class="score-num">{{ score_result.score }}</span>
+          </div>
+          <div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;">{{ score_result.grade }}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);">out of 100</div>
+          </div>
+        </div>
+        {% for f in score_result.factors %}
+        <div class="mb-2">
+          <div class="d-flex justify-content-between" style="font-size:.76rem;margin-bottom:3px;">
+            <span style="font-weight:600;">{{ f.label }}</span>
+            <span style="color:var(--text-muted);">{{ f.points }}/{{ f.max }}</span>
+          </div>
+          <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden;">
+            <div style="height:100%;border-radius:4px;background:var(--amber);width:{{ (f.points/f.max*100)|int if f.max else 0 }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="card p-3">
+        {% if session.student_id %}
+        <form method="POST" action="{{ url_for('save_opportunity', opp_id=opp.id) }}" class="d-grid mb-2">
+          <button type="submit" class="btn btn-navy"><i class="bi bi-bookmark me-2"></i>Save to My List</button>
+        </form>
+        {% else %}
+        <a href="{{ url_for('profile') }}" class="btn btn-primary d-block mb-2">
+          <i class="bi bi-person-check me-2"></i>Check My Eligibility
+        </a>{% endif %}
+        {% if opp.official_link %}
+        <a href="{{ opp.official_link }}" target="_blank" rel="noopener" class="btn btn-outline-primary d-block" style="font-size:.85rem;">
+          <i class="bi bi-box-arrow-up-right me-1"></i>Official Website
+        </a>{% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

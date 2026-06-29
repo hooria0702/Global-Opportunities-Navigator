@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Your Profile — OppsNavigator{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+  }
+
+  .form-section-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .form-label .optional {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .form-control, .form-select {
+    border-color: var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    padding: 0.55rem 0.85rem;
+    color: var(--text-main);
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.15);
+  }
+
+  .form-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .ielts-row { display: none; }
+  .toefl-row { display: none; }
+
+  .cgpa-preview {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--amber);
+    min-width: 40px;
+  }
+
+  .progress-steps {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .progress-step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+  }
+
+  .progress-step.active { background: var(--amber); }
+  .progress-step.done   { background: var(--green); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-person-lines-fill me-2"></i>Your Academic Profile</h1>
+    <p>Tell us about yourself — we'll match you with programmes you actually qualify for.</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+
+      <form method="POST" action="{{ url_for('profile') }}" novalidate>
+
+        <!-- ── Personal details ─────────────────────────────────── -->
+        <div class="form-card mb-3">
+          <p class="form-section-title"><i class="bi bi-person me-2"></i>About You</p>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label" for="name">Full Name</label>
+              <input type="text" class="form-control" id="name" name="name"
+                     placeholder="e.g. Ali Hassan" required />
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" for="nationality">Your Nationality</label>
+              <input type="text" class="form-control" id="nationality" name="nationality"
+                     placeholder="e.g. Pakistani" value="Pakistani" required />
+              <p class="form-hint">Used to check nationality-restricted programmes.</p>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" for="country">Country of Residence</label>
+              <input type="text" class="form-control" id="country" name="country"
+                     placeholder="Pakistan" value="Pakistan" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Academic details ─────────────────────────────────── -->
+        <div class="form-card mb-3">
+          <p class="form-section-title"><i class="bi bi-mortarboard me-2"></i>Academic Background</p>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label" for="degree_level">Current / Target Degree</label>
+              <select class="form-select" id="degree_level" name="degree_level" required>
+                <option value="" disabled selected>Select level</option>
+                <option value="Bachelors">Bachelors (Undergrad)</option>
+                <option value="Masters">Masters (Postgrad)</option>
+                <option value="PhD">PhD / Research</option>
+              </select>
+              <p class="form-hint">The level you're applying for abroad.</p>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" for="major">Major / Field of Study</label>
+              <input type="text" class="form-control" id="major" name="major"
+                     placeholder="e.g. Computer Science, Business" required />
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label" for="cgpa">CGPA <span style="font-weight:400;color:var(--text-muted);">/ 4.0</span></label>
+              <input type="number" class="form-control" id="cgpa" name="cgpa"
+                     min="0" max="4.0" step="0.01" placeholder="e.g. 3.12"
+                     required />
+              <p class="form-hint">Enter your exact CGPA (e.g. 3.12). Most scholarships require 3.0+.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Language tests ───────────────────────────────────── -->
+        <div class="form-card mb-3">
+          <p class="form-section-title"><i class="bi bi-translate me-2"></i>English Language Tests</p>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Many scholarships accept applications without IELTS/TOEFL, but having one
+            opens more doors. Check both that apply.
+          </p>
+
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="form-check mb-1">
+                <input class="form-check-input" type="checkbox" id="has_ielts" name="has_ielts"
+                       onchange="document.querySelector('.ielts-row').style.display=this.checked?'block':'none'" />
+                <label class="form-check-label fw-semibold" for="has_ielts">I have IELTS</label>
+              </div>
+              <div class="ielts-row mt-2">
+                <label class="form-label" for="ielts_score">IELTS Band Score</label>
+                <input type="number" class="form-control" id="ielts_score" name="ielts_score"
+                       min="4.0" max="9.0" step="0.5" placeholder="e.g. 6.5" />
+                <p class="form-hint">Most programmes require 6.0–6.5.</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-check mb-1">
+                <input class="form-check-input" type="checkbox" id="has_toefl" name="has_toefl"
+                       onchange="document.querySelector('.toefl-row').style.display=this.checked?'block':'none'" />
+                <label class="form-check-label fw-semibold" for="has_toefl">I have TOEFL</label>
+              </div>
+              <div class="toefl-row mt-2">
+                <label class="form-label" for="toefl_score">TOEFL iBT Score</label>
+                <input type="number" class="form-control" id="toefl_score" name="toefl_score"
+                       min="40" max="120" step="1" placeholder="e.g. 90" />
+                <p class="form-hint">Most programmes require 80–100.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Preferences ──────────────────────────────────────── -->
+        <div class="form-card mb-4">
+          <p class="form-section-title"><i class="bi bi-sliders me-2"></i>Your Preferences</p>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label" for="budget">Funding Preference</label>
+              <select class="form-select" id="budget" name="budget" required>
+                <option value="" disabled selected>Select preference</option>
+                <option value="Fully Funded">Fully Funded only</option>
+                <option value="Partial">Partial funding is okay</option>
+                <option value="Self">I can self-fund</option>
+              </select>
+              <p class="form-hint">Affects which programmes are prioritised for you.</p>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" for="preferred_countries">
+                Preferred Countries
+                <span class="optional">(optional)</span>
+              </label>
+              <input type="text" class="form-control" id="preferred_countries"
+                     name="preferred_countries"
+                     placeholder="Germany, Hungary, Japan" />
+              <p class="form-hint">Comma-separated. Leave blank for any country.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-search me-2"></i>Check My Eligibility
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- Sidebar tips -->
+    <div class="col-lg-4 col-xl-4 d-none d-lg-block">
+      <div class="form-card" style="position:sticky; top:80px;">
+        <p class="form-section-title"><i class="bi bi-lightbulb me-2"></i>Quick Tips</p>
+        <ul style="font-size:0.85rem; color:var(--text-muted); padding-left:1.1rem; line-height:1.8;">
+          <li>No IELTS? You can still apply to Stipendium Hungaricum, CSC, and Türkiye Bursları.</li>
+          <li>CGPA below 3.0? Erasmus+ and some exchange programmes have lower thresholds.</li>
+          <li>For Masters, your Bachelors CGPA is what matters.</li>
+          <li>Set your preferred countries to get a better match score.</li>
+          <li>You can update your profile any time.</li>
+        </ul>
+        <hr style="border-color:var(--border);" />
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+          Your data is stored in your browser session only.
+          Nothing is shared with anyone.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+

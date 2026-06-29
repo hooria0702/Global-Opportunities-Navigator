@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — OppsNavigator{% endblock %}
+
+{% block extra_head %}
+<style>
+  .dash-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .dash-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .dash-stat-num {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+
+  .dash-stat-lbl {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .match-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    transition: box-shadow 0.18s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .match-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    color: inherit;
+  }
+
+  .match-card .match-info { flex-grow: 1; overflow: hidden; }
+
+  .match-card .match-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .match-card .match-meta {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .dl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+
+  .dl-row:last-child { border-bottom: none; }
+
+  .dl-badge {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    min-width: 38px;
+    text-align: right;
+  }
+
+  .profile-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ground);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .profile-pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--amber);
+  }
+
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    height: 100%;
+  }
+
+  .section-card-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px;">Welcome back</p>
+    <h1>{{ student.name }}'s Dashboard</h1>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <span class="profile-pill"><span class="dot"></span>{{ student.degree_level }}</span>
+      <span class="profile-pill"><span class="dot"></span>{{ student.major }}</span>
+      <span class="profile-pill"><span class="dot"></span>CGPA {{ student.cgpa }}</span>
+      {% if student.has_ielts %}<span class="profile-pill"><span class="dot"></span>IELTS {{ student.ielts_score }}</span>{% endif %}
+      {% if student.preferred_countries %}<span class="profile-pill"><span class="dot"></span>{{ student.preferred_countries }}</span>{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="container pb-5">
+
+  <!-- ── Summary stats ─────────────────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon" style="background:var(--green-light); color:#166534;">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div>
+          <div class="dash-stat-num" style="color:var(--green);">{{ eligible_count }}</div>
+          <div class="dash-stat-lbl">Eligible</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon" style="background:var(--yellow-light); color:#92400E;">
+          <i class="bi bi-dash-circle-fill"></i>
+        </div>
+        <div>
+          <div class="dash-stat-num" style="color:var(--yellow);">{{ potential_count }}</div>
+          <div class="dash-stat-lbl">Potentially</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon" style="background:var(--red-light); color:#991B1B;">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <div>
+          <div class="dash-stat-num" style="color:var(--red);">{{ not_count }}</div>
+          <div class="dash-stat-lbl">Not Eligible</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon" style="background:var(--amber-light); color:#92400E;">
+          <i class="bi bi-bookmark-fill"></i>
+        </div>
+        <div>
+          <div class="dash-stat-num" style="color:var(--amber);">{{ saved_count }}</div>
+          <div class="dash-stat-lbl">Saved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Top matches + Deadlines ───────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+
+    <!-- Top matches -->
+    <div class="col-lg-7">
+      <div class="section-card">
+        <div class="section-card-title">
+          <span><i class="bi bi-stars me-2" style="color:var(--amber);"></i>Top Matches</span>
+          <a href="{{ url_for('results') }}" style="font-size:0.78rem; font-weight:500; color:var(--amber);">View all</a>
+        </div>
+
+        {% if top_matches %}
+          {% for item in top_matches %}
+          {% set opp = item.opportunity %}
+          {% set sc  = item.score_result %}
+          <a href="{{ url_for('opportunity_detail', opp_id=opp.id) }}" class="match-card">
+            <div class="score-ring-wrap flex-shrink-0">
+              <div class="score-ring score-{{ sc.grade | lower }}"
+                   data-score="{{ sc.score }}" data-grade="{{ sc.grade | lower }}">
+                <span class="score-num">{{ sc.score }}</span>
+              </div>
+            </div>
+            <div class="match-info">
+              <div class="match-name">{{ opp.name }}</div>
+              <div class="match-meta">
+                {{ opp.country }} &nbsp;·&nbsp;
+                <span class="badge-type badge-{{ opp.type | lower | replace(' ','-') }}">{{ opp.type }}</span>
+                &nbsp;·&nbsp; {{ opp.funding_type }}
+              </div>
+            </div>
+            <i class="bi bi-arrow-right" style="color:var(--text-muted); flex-shrink:0;"></i>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.88rem;">
+            <i class="bi bi-emoji-neutral" style="font-size:1.8rem; opacity:0.3;"></i>
+            <p class="mt-2 mb-0">No eligible matches yet.<br>
+              <a href="{{ url_for('profile') }}">Update your profile</a> to improve your results.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Deadlines -->
+    <div class="col-lg-5">
+      <div class="section-card">
+        <div class="section-card-title">
+          <span><i class="bi bi-calendar-event me-2" style="color:var(--amber);"></i>Upcoming Deadlines</span>
+          <a href="{{ url_for('search') }}" style="font-size:0.78rem; font-weight:500; color:var(--amber);">Browse</a>
+        </div>
+
+        {% if deadlines %}
+          {% for item in deadlines %}
+          {% set opp = item.opp %}
+          {% set d   = item.days_left %}
+          <div class="dl-row">
+            <div style="overflow:hidden; flex:1;">
+              <a href="{{ url_for('opportunity_detail', opp_id=opp.id) }}"
+                 style="font-weight:600; font-size:0.85rem; color:var(--text-main); text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">
+                {{ opp.name }}
+              </a>
+              <div style="font-size:0.75rem; color:var(--text-muted);">{{ opp.country }}</div>
+            </div>
+            <div class="dl-badge ms-2
+              {% if d <= 14 %}style='color:var(--red);'
+              {% elif d <= 45 %}style='color:var(--yellow);'
+              {% else %}style='color:var(--green);'{% endif %}"
+              {% if d <= 14 %}style="color:var(--red);"
+              {% elif d <= 45 %}style="color:var(--yellow);"
+              {% else %}style="color:var(--green);"{% endif %}>
+              {{ d }}d
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem;">
+            <i class="bi bi-calendar-check" style="font-size:1.8rem; opacity:0.3;"></i>
+            <p class="mt-2 mb-0">No upcoming deadlines in your eligible list.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Missing requirements insight ─────────────────────────────── -->
+  {% set not_elig = buckets.not_eligible %}
+  {% if not_elig %}
+  <div class="section-card mb-4">
+    <div class="section-card-title">
+      <span><i class="bi bi-clipboard-data me-2" style="color:var(--amber);"></i>What's Holding You Back</span>
+      <a href="{{ url_for('results') }}" style="font-size:0.78rem; font-weight:500; color:var(--amber);">Full results</a>
+    </div>
+
+    {% set ielts_block  = not_elig | selectattr('result.requirements', 'defined') | list %}
+    {% set missing_ielts = [] %}
+    {% set missing_gpa   = [] %}
+    {% for item in not_elig %}
+      {% for req in item.result.requirements %}
+        {% if req.met == false and 'IELTS' in req.label %}
+          {% if missing_ielts.append(item.opportunity.name) %}{% endif %}
+        {% endif %}
+        {% if req.met == false and 'GPA' in req.label %}
+          {% if missing_gpa.append(item.opportunity.name) %}{% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+
+    <div class="row g-3">
+      {% if missing_ielts %}
+      <div class="col-md-6">
+        <div style="background:var(--red-light); border-radius:var(--radius-sm); padding:1rem;">
+          <div style="font-weight:700; font-size:0.88rem; color:#991B1B; margin-bottom:6px;">
+            <i class="bi bi-translate me-1"></i>IELTS is blocking {{ missing_ielts|length }} programme(s)
+          </div>
+          <ul style="font-size:0.8rem; color:#7F1D1D; padding-left:1.1rem; margin:0; line-height:1.8;">
+            {% for name in missing_ielts[:3] %}<li>{{ name }}</li>{% endfor %}
+            {% if missing_ielts|length > 3 %}<li style="list-style:none; color:#991B1B;">+{{ missing_ielts|length - 3 }} more</li>{% endif %}
+          </ul>
+          <p style="font-size:0.78rem; color:#991B1B; margin-top:8px; margin-bottom:0;">
+            Getting an IELTS 6.0–6.5 would make you eligible for these.
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if missing_gpa %}
+      <div class="col-md-6">
+        <div style="background:var(--amber-light); border-radius:var(--radius-sm); padding:1rem;">
+          <div style="font-weight:700; font-size:0.88rem; color:#92400E; margin-bottom:6px;">
+            <i class="bi bi-bar-chart me-1"></i>GPA is a barrier for {{ missing_gpa|length }} programme(s)
+          </div>
+          <ul style="font-size:0.8rem; color:#78350F; padding-left:1.1rem; margin:0; line-height:1.8;">
+            {% for name in missing_gpa[:3] %}<li>{{ name }}</li>{% endfor %}
+            {% if missing_gpa|length > 3 %}<li style="list-style:none; color:#92400E;">+{{ missing_gpa|length - 3 }} more</li>{% endif %}
+          </ul>
+          <p style="font-size:0.78rem; color:#92400E; margin-top:8px; margin-bottom:0;">
+            Improving your CGPA this semester could unlock these opportunities.
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if not missing_ielts and not missing_gpa %}
+      <div class="col-12">
+        <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+          Review the <a href="{{ url_for('results') }}">full results page</a> for a breakdown of each programme.
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Quick actions ─────────────────────────────────────────────── -->
+  <div class="row g-3">
+    <div class="col-sm-4">
+      <a href="{{ url_for('results') }}" class="btn btn-primary w-100">
+        <i class="bi bi-list-check me-2"></i>Full Results
+      </a>
+    </div>
+    <div class="col-sm-4">
+      <a href="{{ url_for('saved') }}" class="btn btn-navy w-100">
+        <i class="bi bi-bookmark me-2"></i>Saved ({{ saved_count }})
+      </a>
+    </div>
+    <div class="col-sm-4">
+      <a href="{{ url_for('profile') }}" class="btn w-100" style="border:1px solid var(--border); background:var(--card-bg);">
+        <i class="bi bi-pencil me-2"></i>Edit Profile
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

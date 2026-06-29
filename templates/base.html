@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Global Opportunities Navigator{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <style>
+    /* ── Design tokens ───────────────────────────────────────────── */
+    :root {
+      --navy:        #0F1B2D;
+      --navy-mid:    #1A2E45;
+      --amber:       #F5A623;
+      --amber-light: #FEF3DC;
+      --green:       #22C55E;
+      --green-light: #DCFCE7;
+      --red:         #EF4444;
+      --red-light:   #FEE2E2;
+      --yellow:      #F59E0B;
+      --yellow-light:#FEF9C3;
+      --ground:      #F7F9FC;
+      --card-bg:     #FFFFFF;
+      --text-main:   #0F1B2D;
+      --text-muted:  #64748B;
+      --border:      #E2E8F0;
+      --radius:      12px;
+      --radius-sm:   8px;
+    }
+
+    /* ── Base ────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--ground);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-display {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    a { color: var(--amber); text-decoration: none; }
+    a:hover { color: #d4891a; }
+
+    /* ── Navbar ──────────────────────────────────────────────────── */
+    .navbar {
+      background: var(--navy) !important;
+      padding: 0.9rem 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+
+    .navbar-brand {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #fff !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .navbar-brand .brand-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--amber);
+      border-radius: 50%;
+    }
+
+    .navbar-nav .nav-link {
+      color: rgba(255,255,255,0.78) !important;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 0.85rem !important;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+      color: #fff !important;
+      background: rgba(245,166,35,0.15);
+    }
+
+    .navbar-toggler { border-color: rgba(255,255,255,0.3); }
+    .navbar-toggler-icon { filter: invert(1); }
+
+    .nav-cta {
+      background: var(--amber) !important;
+      color: var(--navy) !important;
+      font-weight: 700 !important;
+      border-radius: 8px !important;
+    }
+
+    .nav-cta:hover { background: #d4891a !important; }
+
+    /* ── Flash messages ──────────────────────────────────────────── */
+    .flash-wrapper { padding: 0.75rem 0 0; }
+
+    /* ── Cards ───────────────────────────────────────────────────── */
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.09); transform: translateY(-2px); }
+
+    /* left-border status cards */
+    .card-eligible    { border-left: 4px solid var(--green) !important; }
+    .card-potentially { border-left: 4px solid var(--yellow) !important; }
+    .card-not         { border-left: 4px solid var(--red) !important; }
+
+    /* ── Badges ──────────────────────────────────────────────────── */
+    .badge-type {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+
+    .badge-scholarship      { background: #EDE9FE; color: #5B21B6; }
+    .badge-exchange         { background: #DBEAFE; color: #1D4ED8; }
+    .badge-university       { background: #FCE7F3; color: #9D174D; }
+    .badge-internship       { background: #DCFCE7; color: #166534; }
+    .badge-summer-school    { background: #FEF3C7; color: #92400E; }
+    .badge-research-program { background: #E0E7FF; color: #3730A3; }
+    .badge-fellowship       { background: #FCE7F3; color: #BE185D; }
+    .badge-competition      { background: #FFE4E6; color: #9F1239; }
+
+    .badge-funded    { background: var(--green-light); color: #166534; }
+    .badge-partial   { background: var(--yellow-light); color: #92400E; }
+    .badge-varies    { background: #F1F5F9; color: #475569; }
+
+    .badge-deadline-urgent  { background: var(--red-light);    color: #991B1B; }
+    .badge-deadline-soon    { background: var(--yellow-light);  color: #92400E; }
+    .badge-deadline-open    { background: var(--green-light);   color: #166534; }
+    .badge-deadline-rolling { background: #F1F5F9;              color: #475569; }
+    .badge-deadline-closed  { background: #F1F5F9;              color: #94A3B8; }
+
+    /* ── Match score ring ────────────────────────────────────────── */
+    .score-ring-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .score-ring {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .score-ring svg {
+      position: absolute;
+      top: 0; left: 0;
+      transform: rotate(-90deg);
+    }
+
+    .score-ring .score-num { position: relative; z-index: 1; }
+
+    .score-excellent { background: var(--green-light);  color: #166534; }
+    .score-good      { background: var(--amber-light);  color: #92400E; }
+    .score-fair      { background: var(--yellow-light); color: #854D0E; }
+    .score-low       { background: var(--red-light);    color: #991B1B; }
+
+    .score-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    /* ── Requirements checklist ──────────────────────────────────── */
+    .req-list { list-style: none; padding: 0; margin: 0; }
+
+    .req-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+
+    .req-list li:last-child { border-bottom: none; }
+
+    .req-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .req-met     { background: var(--green-light); color: #166534; }
+    .req-partial { background: var(--yellow-light); color: #92400E; }
+    .req-fail    { background: var(--red-light); color: #991B1B; }
+
+    /* ── Buttons ─────────────────────────────────────────────────── */
+    .btn-primary {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: var(--navy);
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-primary:hover {
+      background: #d4891a;
+      border-color: #d4891a;
+      color: var(--navy);
+    }
+
+    .btn-outline-primary {
+      border-color: var(--amber);
+      color: var(--amber);
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: var(--navy);
+    }
+
+    .btn-navy {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-navy:hover { background: var(--navy-mid); color: #fff; }
+
+    /* ── Section heading ─────────────────────────────────────────── */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--amber);
+      margin-bottom: 6px;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.55);
+      padding: 2rem 0;
+      margin-top: 4rem;
+      font-size: 0.85rem;
+    }
+
+    footer a { color: rgba(255,255,255,0.7); }
+    footer a:hover { color: var(--amber); }
+
+    /* ── Utility ─────────────────────────────────────────────────── */
+    .text-amber  { color: var(--amber); }
+    .text-navy   { color: var(--navy); }
+    .bg-navy     { background: var(--navy); }
+    .bg-amber    { background: var(--amber); }
+
+    .page-header {
+      background: var(--navy);
+      color: #fff;
+      padding: 2.5rem 0 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 { font-weight: 800; font-size: 1.75rem; margin-bottom: 0.3rem; }
+    .page-header p  { color: rgba(255,255,255,0.65); margin: 0; font-size: 0.95rem; }
+
+    /* ── Responsive tweaks ───────────────────────────────────────── */
+    @media (max-width: 576px) {
+      .page-header h1 { font-size: 1.4rem; }
+      .score-ring { width: 46px; height: 46px; font-size: 0.82rem; }
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────────────── -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <span class="brand-dot"></span> OppsNavigator
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
+             href="{{ url_for('index') }}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'search' %}active{% endif %}"
+             href="{{ url_for('search') }}">Browse</a>
+        </li>
+        {% if session.student_id %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'results' %}active{% endif %}"
+             href="{{ url_for('results') }}">My Results</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+             href="{{ url_for('dashboard') }}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'saved' %}active{% endif %}"
+             href="{{ url_for('saved') }}">Saved</a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'submit_opportunity' %}active{% endif %}"
+             href="{{ url_for('submit_opportunity') }}">Suggest</a>
+        </li>
+        <li class="nav-item ms-lg-2">
+          <a class="nav-link nav-cta px-3"
+             href="{{ url_for('profile') }}">
+            {% if session.student_id %}Update Profile{% else %}Check My Chances{% endif %}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Flash messages ──────────────────────────────────────────────── -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container flash-wrapper">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'warning' if category == 'warning' else 'danger' }} alert-dismissible fade show rounded-3 py-2 px-3" style="font-size:0.88rem;">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ── Page content ────────────────────────────────────────────────── -->
+{% block content %}{% endblock %}
+
+<!-- ── Footer ─────────────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-2 mb-md-0">
+        <span style="color:#fff; font-family:'Poppins',sans-serif; font-weight:700;">OppsNavigator</span>
+        &nbsp;·&nbsp; Helping Pakistani students find global opportunities
+      </div>
+      <div class="col-md-6 text-md-end">
+        Data sourced from official programme websites &nbsp;·&nbsp;
+        <a href="{{ url_for('about') }}">About</a> &nbsp;·&nbsp;
+        <a href="{{ url_for('admin') }}" style="opacity:0.5;">Admin</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<!-- Score ring animation -->
+<script>
+  document.querySelectorAll('.score-ring[data-score]').forEach(ring => {
+    const score = parseInt(ring.dataset.score);
+    const r = 24, c = 2 * Math.PI * r;
+    const fill = (score / 100) * c;
+    const grade = ring.dataset.grade || 'low';
+    const colors = { excellent:'#22C55E', good:'#F5A623', fair:'#F59E0B', low:'#EF4444' };
+    const svg = `<svg width="56" height="56" viewBox="0 0 56 56">
+      <circle cx="28" cy="28" r="${r}" fill="none" stroke="#E2E8F0" stroke-width="4"/>
+      <circle cx="28" cy="28" r="${r}" fill="none" stroke="${colors[grade]||'#94A3B8'}"
+        stroke-width="4" stroke-linecap="round"
+        stroke-dasharray="${fill} ${c}" />
+    </svg>`;
+    ring.insertAdjacentHTML('afterbegin', svg);
+  });
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

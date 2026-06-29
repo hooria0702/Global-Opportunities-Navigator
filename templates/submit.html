@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Suggest an Opportunity — OppsNavigator{% endblock %}
+{% block extra_head %}
+<style>
+.form-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; }
+.form-section-title { font-family:'Poppins',sans-serif; font-weight:700; font-size:.85rem; text-transform:uppercase; letter-spacing:.07em; color:var(--amber); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:1px solid var(--border); }
+.form-label { font-size:.85rem; font-weight:600; margin-bottom:4px; }
+.form-control, .form-select { border-color:var(--border); border-radius:var(--radius-sm); font-size:.9rem; }
+.form-control:focus, .form-select:focus { border-color:var(--amber); box-shadow:0 0 0 3px rgba(245,166,35,.15); }
+.form-hint { font-size:.76rem; color:var(--text-muted); margin-top:3px; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-plus-circle me-2"></i>Suggest an Opportunity</h1>
+    <p>Know a scholarship, internship, or programme that should be listed here? Tell us about it.</p>
+  </div>
+</div>
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+
+      <div class="form-card mb-4">
+        <p class="form-section-title"><i class="bi bi-lightbulb me-2"></i>Programme Details</p>
+        <form method="POST" action="{{ url_for('submit_opportunity') }}">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Programme Name <span style="color:var(--red);">*</span></label>
+              <input type="text" name="name" class="form-control" required placeholder="e.g. DAAD RISE Germany" />
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Type</label>
+              <select name="type" class="form-select">
+                <option value="">Select type</option>
+                {% for t in opp_types %}
+                <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Host Country</label>
+              <input type="text" name="country" class="form-control" placeholder="e.g. Germany" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Official Website</label>
+              <input type="url" name="link" class="form-control" placeholder="https://..." />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Brief Description</label>
+              <textarea name="description" rows="4" class="form-control" placeholder="What is this programme? Who is it for? Is it funded?"></textarea>
+              <p class="form-hint">The more detail you give, the faster we can verify and add it.</p>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Your Name / Email <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+              <input type="text" name="submitter" class="form-control" placeholder="So we can credit you or follow up" />
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="bi bi-send me-2"></i>Submit Suggestion
+              </button>
+              <a href="{{ url_for('search') }}" class="btn ms-2" style="border:1px solid var(--border);">Browse Existing</a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div style="background:var(--ground);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.25rem;font-size:.83rem;color:var(--text-muted);">
+        <i class="bi bi-info-circle me-1"></i>
+        Submissions are reviewed by the admin before being added to the database. We verify deadlines and requirements against the official programme website before publishing.
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
