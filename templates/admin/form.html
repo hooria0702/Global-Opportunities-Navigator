@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Opportunity — Admin{% endblock %}
+{% block extra_head %}
+<style>
+.form-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:1.75rem; }
+.form-section-title { font-family:'Poppins',sans-serif; font-weight:700; font-size:.85rem; text-transform:uppercase; letter-spacing:.07em; color:var(--amber); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:1px solid var(--border); }
+.form-label { font-size:.85rem; font-weight:600; margin-bottom:4px; }
+.form-control, .form-select, textarea.form-control { border-color:var(--border); border-radius:var(--radius-sm); font-size:.9rem; }
+.form-control:focus, .form-select:focus { border-color:var(--amber); box-shadow:0 0 0 3px rgba(245,166,35,.15); }
+.form-hint { font-size:.76rem; color:var(--text-muted); margin-top:3px; }
+.degree-check { display:inline-flex; align-items:center; gap:5px; background:var(--ground); border:1px solid var(--border); border-radius:20px; padding:4px 12px 4px 8px; margin-right:6px; font-size:.83rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <a href="{{ url_for('admin') }}" style="color:rgba(255,255,255,.5);font-size:.82rem;"><i class="bi bi-arrow-left me-1"></i>Back to Admin Panel</a>
+    <h1 class="mt-2"><i class="bi bi-{{ 'plus-circle' if action == 'Add' else 'pencil-square' }} me-2"></i>{{ action }} Opportunity</h1>
+    <p>{% if action == 'Add' %}Create a new programme listing.{% else %}Editing: {{ opp.name }}{% endif %}</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <form method="POST" action="{{ url_for('admin_edit', opp_id=opp.id) if opp else url_for('admin_add') }}">
+
+        <div class="form-card mb-3">
+          <p class="form-section-title">Basic Information</p>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Programme Name</label>
+              <input type="text" name="name" class="form-control" required value="{{ opp.name if opp else '' }}" placeholder="e.g. Stipendium Hungaricum" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Country</label>
+              <input type="text" name="country" class="form-control" required value="{{ opp.country if opp else '' }}" placeholder="Hungary" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Region</label>
+              <select name="region" class="form-select">
+                {% for r in regions %}
+                <option value="{{ r }}" {% if opp and opp.region == r %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Type</label>
+              <select name="type" class="form-select" required>
+                {% for t in opp_types %}
+                <option value="{{ t }}" {% if opp and opp.type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Funding Type</label>
+              <select name="funding_type" class="form-select" required>
+                <option value="Fully Funded" {% if opp and opp.funding_type == 'Fully Funded' %}selected{% endif %}>Fully Funded</option>
+                <option value="Partially Funded" {% if opp and opp.funding_type == 'Partially Funded' %}selected{% endif %}>Partially Funded</option>
+                <option value="Varies" {% if opp and opp.funding_type == 'Varies' %}selected{% endif %}>Varies</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Deadline</label>
+              <input type="text" name="deadline" class="form-control" value="{{ opp.deadline if opp and opp.deadline else '' }}" placeholder="YYYY-MM-DD or Rolling" />
+              <p class="form-hint">Format: 2026-08-15, or type "Rolling"</p>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Opening Date <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+              <input type="text" name="opening_date" class="form-control" value="{{ opp.opening_date if opp and opp.opening_date else '' }}" placeholder="YYYY-MM-DD" />
+              <p class="form-hint">When applications open. Leave blank if already open.</p>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Application Status</label>
+              <select name="application_status" class="form-select">
+                {% set cur = opp.application_status if opp else 'Open' %}
+                <option value="Open" {% if cur == 'Open' %}selected{% endif %}>Open</option>
+                <option value="Closed" {% if cur == 'Closed' %}selected{% endif %}>Closed</option>
+                <option value="Opening Soon" {% if cur == 'Opening Soon' %}selected{% endif %}>Opening Soon</option>
+                <option value="Rolling" {% if cur == 'Rolling' %}selected{% endif %}>Rolling</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card mb-3">
+          <p class="form-section-title">Eligibility Requirements</p>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Degree Levels</label><br>
+              {% set dl = (opp.degree_levels.split(',') if opp else []) %}
+              {% for level in ['Bachelors','Masters','PhD'] %}
+              <label class="degree-check">
+                <input type="checkbox" name="degree_levels" value="{{ level }}" {% if level in dl %}checked{% endif %} /> {{ level }}
+              </label>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fields of Study</label>
+              <input type="text" name="fields" class="form-control" value="{{ opp.fields if opp else 'All' }}" placeholder='"All" or "Engineering,Computer Science"' />
+              <p class="form-hint">Use "All" or comma-separated list, no spaces</p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Minimum GPA</label>
+              <input type="number" step="0.1" min="0" max="4" name="min_gpa" class="form-control" value="{{ opp.min_gpa if opp else '' }}" placeholder="3.0" />
+            </div>
+            <div class="col-md-3">
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="ielts_required" name="ielts_required" {% if opp and opp.ielts_required %}checked{% endif %} />
+                <label class="form-check-label" for="ielts_required">IELTS Required</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Min IELTS Band</label>
+              <input type="number" step="0.5" name="min_ielts" class="form-control" value="{{ opp.min_ielts if opp and opp.min_ielts else '' }}" placeholder="6.5" />
+            </div>
+            <div class="col-md-3">
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="toefl_required" name="toefl_required" {% if opp and opp.toefl_required %}checked{% endif %} />
+                <label class="form-check-label" for="toefl_required">TOEFL Required</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Min TOEFL Score</label>
+              <input type="number" name="min_toefl" class="form-control" value="{{ opp.min_toefl if opp and opp.min_toefl else '' }}" placeholder="90" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card mb-3">
+          <p class="form-section-title">Description &amp; Links</p>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea name="description" rows="4" class="form-control" placeholder="Brief description shown on the detail page...">{{ opp.description if opp else '' }}</textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Official Link</label>
+              <input type="url" name="official_link" class="form-control" value="{{ opp.official_link if opp else '' }}" placeholder="https://..." />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Application Roadmap <span style="font-weight:400;color:var(--text-muted);">(one step per line)</span></label>
+              <textarea name="roadmap" rows="6" class="form-control" style="font-family:'Courier New',monospace;font-size:.85rem;" placeholder="1. Register on the portal
+2. Prepare transcripts
+3. Submit by deadline">{{ opp.roadmap if opp else '' }}</textarea>
+              <p class="form-hint">Each line becomes one step in the student-facing roadmap. Numbers are optional.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check-lg me-1"></i>{{ 'Add Opportunity' if action == 'Add' else 'Save Changes' }}
+          </button>
+          <a href="{{ url_for('admin') }}" class="btn" style="border:1px solid var(--border);">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
