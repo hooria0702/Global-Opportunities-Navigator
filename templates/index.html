@@ -62,7 +62,71 @@
 
   .stat-item {
     text-align: center;
-    padding: 0 1rem;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .stat-item-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 8px;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .stat-item-link:hover {
+    background: rgba(255,255,255,0.06);
+    transform: translateY(-1px);
+  }
+
+  .stat-item-link:hover .stat-num {
+    color: #ffc34d;
+  }
+
+  .stat-item-link:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  .stat-item-link .stat-num,
+  .stat-item-link .stat-lbl {
+    transition: color 0.15s ease;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem 0;
+  }
+
+  .stat-grid .stat-item:not(:last-child) {
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .stat-grid .stat-item:nth-child(5) {
+    border-right: none;
+  }
+
+  @media (max-width: 768px) {
+    .stat-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .stat-grid .stat-item:nth-child(3n) {
+      border-right: none;
+    }
+    .stat-grid .stat-item {
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 0.6rem;
+      margin-bottom: 0.2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stat-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .stat-grid .stat-item:nth-child(2n) {
+      border-right: none;
+    }
   }
 
   .stat-num {
@@ -101,7 +165,7 @@
     font-family: 'Poppins', sans-serif;
     font-size: 2rem;
     font-weight: 800;
-    color: var(--amber);
+    color: var(--amber-text);
     line-height: 1;
     margin-bottom: 0.75rem;
   }
@@ -209,11 +273,13 @@
             </button>
           </div>
         </form>
-        <div class="hero-actions">
-          <a href="{{ url_for('profile') }}" class="btn btn-primary btn-lg px-4">
+        <div class="hero-actions align-items-center">
+          <a href="{{ url_for('profile') }}" class="btn btn-primary px-5 py-3"
+             style="font-size:1.05rem;font-weight:800;box-shadow:0 4px 20px rgba(245,166,35,0.45);">
             <i class="bi bi-person-check me-2"></i>Check My Chances
           </a>
-          <a href="{{ url_for('search') }}" class="btn btn-outline-light btn-lg px-4">
+          <a href="{{ url_for('search') }}" class="btn btn-outline-light px-4 py-2"
+             style="font-size:.9rem;opacity:.85;">
             Browse All
           </a>
         </div>
@@ -256,37 +322,28 @@
 <!-- ── Stats strip ────────────────────────────────────────────────── -->
 <div class="stat-strip">
   <div class="container">
-    <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
-      <div class="stat-item">
+    <div class="stat-grid">
+      <a href="{{ url_for('search') }}" class="stat-item stat-item-link">
         <div class="stat-num">{{ total }}</div>
         <div class="stat-lbl">Opportunities</div>
-      </div>
-      <div class="stat-divider d-none d-sm-block"></div>
-      <div class="stat-item">
-        <div class="stat-num">{{ stats.Scholarship }}</div>
-        <div class="stat-lbl">Scholarships</div>
-      </div>
-      <div class="stat-divider d-none d-sm-block"></div>
-      <div class="stat-item">
-        <div class="stat-num">{{ stats.Exchange }}</div>
-        <div class="stat-lbl">Exchanges</div>
-      </div>
-      <div class="stat-divider d-none d-sm-block"></div>
-      <div class="stat-item">
-        <div class="stat-num">{{ stats.University }}</div>
-        <div class="stat-lbl">Universities</div>
-      </div>
-      <div class="stat-divider d-none d-sm-block"></div>
-      <div class="stat-item">
+      </a>
+      {% for type_label, count, type_value in top_stats %}
+      <a href="{{ url_for('search', opp_type=type_value) }}" class="stat-item stat-item-link">
+        <div class="stat-num">{{ count }}</div>
+        <div class="stat-lbl">{{ type_label }}</div>
+      </a>
+      {% endfor %}
+      <a href="#closing-soon" class="stat-item stat-item-link">
         <div class="stat-num">{{ upcoming|length }}</div>
         <div class="stat-lbl">Closing Soon</div>
-      </div>
+      </a>
     </div>
   </div>
 </div>
 
+<hr class="section-sep">
 <!-- ── How it works ───────────────────────────────────────────────── -->
-<section class="py-5">
+<section class="py-5" style="padding-top:3rem!important;">
   <div class="container">
     <p class="section-label text-center">How it works</p>
     <h2 class="text-center fw-bold mb-4" style="font-size:1.45rem;">Three steps to find your opportunity</h2>
@@ -316,9 +373,10 @@
   </div>
 </section>
 
+<hr class="section-sep">
 <!-- ── Upcoming deadlines ─────────────────────────────────────────── -->
 {% if upcoming %}
-<section class="pb-5">
+<section class="pb-5" id="closing-soon">
   <div class="container">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <div>
@@ -353,6 +411,7 @@
 </section>
 {% endif %}
 
+<hr class="section-sep">
 <!-- ── CTA banner ─────────────────────────────────────────────────── -->
 <section class="pb-5">
   <div class="container">
