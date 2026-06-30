@@ -1,4 +1,4 @@
-# Global Opportunities Navigator
+<img width="835" height="412" alt="image" src="https://github.com/user-attachments/assets/589a2e21-3135-4f7b-83ef-6defeffd1928" /># Global Opportunities Navigator
 
 A web platform that helps Pakistani students discover scholarships, exchange programmes,
 and universities that match their academic profile — and understand exactly why they
@@ -105,9 +105,12 @@ at a glance.
 ---
 
 ## Screenshots
-
-> Screenshots to be added after local deployment.
-> Pages: Home, Profile Setup, Eligibility Results, Search, Dashboard, Detail View.
+<img width="532" height="335" alt="image" src="https://github.com/user-attachments/assets/2644f209-b5e7-4b9d-8d0d-37d2ff02bd14" />
+<img width="833" height="413" alt="image" src="https://github.com/user-attachments/assets/600f2bb9-cdc9-4347-b64b-e14f8d834fee" />
+<img width="835" height="412" alt="image" src="https://github.com/user-attachments/assets/6e125b8d-df07-4bf3-a34b-7b7b422e847c" />
+<img width="839" height="406" alt="image" src="https://github.com/user-attachments/assets/7278f870-8552-4bf0-a80c-2bb5c4e857e2" />
+<img width="814" height="413" alt="image" src="https://github.com/user-attachments/assets/93e8cd3c-4426-41be-9645-bf487e36e96e" />
+<img width="833" height="413" alt="image" src="https://github.com/user-attachments/assets/5d051a3a-512a-4445-bd8f-267d6e287347" />
 
 ---
 
