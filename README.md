@@ -146,7 +146,7 @@ Total Score: **100**
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/yourusername/global-opportunities-navigator.git
+git clone https://github.com/hooria0702/Global-Opportunities-Navigator.git
 
 cd global-opportunities-navigator
 
