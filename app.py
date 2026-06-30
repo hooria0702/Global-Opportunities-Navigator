@@ -90,8 +90,28 @@ def index():
             except ValueError:
                 pass
     upcoming.sort(key=lambda x: x["days_left"])
+
+    # Build display labels for the homepage stat strip — show the 4 largest
+    # categories by count so it stays accurate as opportunity types grow,
+    # rather than hardcoding specific type names.
+    TYPE_LABELS = {
+        "Scholarship":      "Scholarships",
+        "Exchange":         "Exchanges",
+        "University":       "Universities",
+        "Internship":       "Internships",
+        "Research Program": "Research Programs",
+        "Fellowship":       "Fellowships",
+        "Summer School":    "Summer Schools",
+        "Competition":      "Competitions",
+    }
+    sorted_types = sorted(stats.items(), key=lambda kv: kv[1], reverse=True)
+    top_stats = [
+        (TYPE_LABELS.get(t, t), n, t) for t, n in sorted_types if n > 0
+    ]
+
     return render_template("index.html", stats=stats, upcoming=upcoming[:6],
-                           total=len(opportunities), regions=REGIONS)
+                           total=len(opportunities), regions=REGIONS,
+                           top_stats=top_stats)
 
 # ── Profile ─────────────────────────────────────────────────────────
 @app.route("/profile", methods=["GET", "POST"])
