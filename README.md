@@ -126,7 +126,7 @@ Global-Opportunities-Navigator/
     │   └── style.css
     └── js/
         └── main.js```
-
+```
 ---
 
 ## ⚙ Eligibility Engine
