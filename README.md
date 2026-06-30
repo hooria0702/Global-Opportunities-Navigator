@@ -101,10 +101,31 @@ Global-Opportunities-Navigator/
 ├── scoring.py
 ├── seed_data.py
 │
+├── requirements.txt
+├── README.md
+├── opportunities.db
+│
 ├── templates/
-├── static/
-└── opportunities.db
-```
+│   ├── base.html
+│   ├── index.html
+│   ├── profile.html
+│   ├── results.html
+│   ├── search.html
+│   ├── detail.html
+│   ├── dashboard.html
+│   ├── saved.html
+│   ├── about.html
+│   │
+│   └── admin/
+│       ├── form.html
+│       ├── login.html
+│       └── index.html
+│
+└── static/
+    ├── css/
+    │   └── style.css
+    └── js/
+        └── main.js```
 
 ---
 
