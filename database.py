@@ -95,8 +95,8 @@ def init_db():
             password TEXT    NOT NULL
         )
     """)
-    # Default admin credentials (change in production)
-    c.execute("INSERT OR IGNORE INTO admin_users (username, password) VALUES ('admin', 'Opps_Nav#2026')")
+    # Default admin credentials (change in production, my live version's password is different.)
+    c.execute("INSERT OR IGNORE INTO admin_users (username, password) VALUES ('admin', 'admin123')")
 
     conn.commit()
     conn.close()
